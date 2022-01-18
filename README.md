@@ -9,6 +9,7 @@ yarn install
 ```
 yarn serve
 ```
+Läuft unter http://localhost:8080
 
 ### Compiles and minifies for production
 ```
