@@ -22,11 +22,23 @@
         </div>
         <div class="course-filter__item">
             <label for="sport">Sportart</label>
-            <input id="sport" type="text" v-model="sportKind" placeholder="Kajak, Kanadier ...">
+            <select id="sport" v-model="sportKind">
+                <option></option>
+                <option>Kajak</option>
+                <option>Kanadier</option>
+                <option>Packraft</option>
+                <option>alle</option>
+            </select>
         </div>
         <div class="course-filter__item">
             <label for="typ">Kurstyp</label>
-            <input id="typ" type="text" v-model="courseType" placeholder="Kanukurs, Paddelreise ...">
+            <select id="typ" v-model="courseType">
+                <option></option>
+                <option>Kanukurs</option>
+                <option>Paddelreise</option>
+                <option>Eskimotieren</option>
+                <option>Packraft Kurs</option>
+            </select>
         </div>
         <div class="course-filter__item">
             <label for="name">Kursname</label>
@@ -35,11 +47,13 @@
         <p>kursStufe: {{ wwLevel }}</p>
     </div>
     <div>
-        <button @click='changeFilter()'>Filter</button>
+        <button @click='searchCourses()'>suchen</button>
     </div>
 </template>
 
 <script>
+import CourseService from '@/services/CourseService.js'
+
 export default {
   name: 'TableFilter',
   emits: ['filterChanged'],
@@ -51,25 +65,61 @@ export default {
       courseType: '',
       courseName: '',
       fromDate: '',
-      toDate: ''
+      toDate: '',
+      allCourses: [],
+      courses: {
+        data: [],
+        filterWwLevel: function (wwLevel) {
+          if (wwLevel !== '') {
+            this.data = this.data.filter((course) => {
+              return course.kursStufe === wwLevel
+            })
+          }
+          return this
+        },
+        filterSportKind: function (sportKind) {
+          if (sportKind !== '') {
+            this.data = this.data.filter((course) => {
+              return course.sportArt === sportKind
+            })
+          }
+          return this
+        },
+        filterCourseType: function (courseType) {
+          if (courseType !== '') {
+            this.data = this.data.filter((course) => {
+              return course.typ === courseType
+            })
+          }
+          return this
+        }
+      }
     }
   },
+
   methods: {
-    changeFilter () {
-      console.log('changeFilter...')
-      this.$emit('filterChanged', this.wwLevel)
+    searchCourses () {
+      this.courses.data = this.allCourses
+      this.courses
+        .filterWwLevel(this.wwLevel)
+        .filterSportKind(this.sportKind)
+        .filterCourseType(this.courseType)
+      this.$emit('filterChanged', this.courses.data)
     }
+  },
+
+  // LifeCicleHook created()
+  created () {
+    CourseService.getCourses()
+      .then(response => {
+        console.log(response.data)
+        this.allCourses = response.data
+        this.searchCourses()
+      })
+      .catch(error => {
+        console.log('Da war ein Fehler: ' + error.response)
+      })
   }
-//   computed: {
-//     wwLevel: {
-//       get () {
-//         return this.wwLevel
-//       },
-//       set (value) {
-//         this.$emit('update:wwLevel', value)
-//       }
-//     }
-//   }
 }
 </script>
 
