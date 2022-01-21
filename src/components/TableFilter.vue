@@ -126,7 +126,7 @@ export default {
 <style lang="scss" scoped>
     .course-filter{
         display: flex;
-        background-color: aqua;
+        background-color: $baseColor1;
         margin-bottom: 16px;
 
         .course-filter__item{
